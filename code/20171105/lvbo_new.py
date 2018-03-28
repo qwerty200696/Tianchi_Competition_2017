@@ -13,22 +13,21 @@ labels = measure.label(img_new, connectivity=1)
 regions = measure.regionprops(labels)
 
 for region in regions:
-    if region.extent<0.3:
+    if region.extent < 0.3:
         for i in region.coords:
             img_new[i[0], i[1], i[2]] = False
 
     width = region.bbox[3] - region.bbox[0]
     height = region.bbox[4] - region.bbox[1]
-    if  height != 0 and width != 0:
-        if width / height > 4 and height<40:
+    if height != 0 and width != 0:
+        if width / height > 4 and height < 40:
             for i in region.coords:
                 img_new[i[0], i[1], i[2]] = False
 
-        if width / height < 0.25 and width<40:
+        if width / height < 0.25 and width < 40:
             for i in region.coords:
                 img_new[i[0], i[1], i[2]] = False
-
 
 img_new = img_new.astype('uint8')
 img_new[img_new > 0] = 255
-tiff.imsave(FILE_OUTPUT,img_new[:,:,0])
+tiff.imsave(FILE_OUTPUT, img_new[:, :, 0])

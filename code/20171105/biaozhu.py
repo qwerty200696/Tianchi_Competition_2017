@@ -7,6 +7,8 @@ IM_ROWS = 3000
 IM_COLS = 15106
 ROI_SIZE = 224
 import numpy as np
+
+
 def on_mouse(event, x, y, flags, params):
     img, points = params['img'], params['points']
     if event == cv2.EVENT_FLAG_LBUTTON:
@@ -26,6 +28,7 @@ def on_mouse(event, x, y, flags, params):
     cv2.namedWindow("img", 0)
     cv2.resizeWindow('img', 1024, 1024)
     cv2.imshow('img', temp)
+
 
 def label_img(img_1, img_2, label_name_1, label_name_2):
     c = 'x'
@@ -66,17 +69,18 @@ def label_img(img_1, img_2, label_name_1, label_name_2):
                 cv2.fillPoly(img_1, [np.array(points)], (0, 0, 255))
                 cv2.fillPoly(tiny_2015, [np.array(points)], (255, 255, 255))
 
-    print(label_name_1,' & ', label_name_2)
+    print(label_name_1, ' & ', label_name_2)
     cv2.imwrite(label_name_1, tiny_2015)
     cv2.imwrite(label_name_2, tiny_2017)
 
     return
 
+
 if __name__ == '__main__':
     # for i in range(13,int(IM_ROWS // ROI_SIZE)+1):
     #     for j in range(int(IM_COLS // ROI_SIZE)):
-    i=13
-    j=20
+    i = 13
+    j = 20
     ss1 = '{}/2015/{}_{}_{}_.png'.format(DATA_DIR, i, j, ROI_SIZE)
     ss2 = '{}/2017/{}_{}_{}_.png'.format(DATA_DIR, i, j, ROI_SIZE)
     ss3 = '{}/mylabel_2015/{}_{}_{}_.png'.format(DATA_DIR, i, j, ROI_SIZE)
@@ -86,6 +90,6 @@ if __name__ == '__main__':
     #     continue
     # if os.path.exists(ss4):
     #     continue
-    src_2015 = cv2.imread(ss1,1)
-    src_2017 = cv2.imread(ss2,1)
+    src_2015 = cv2.imread(ss1, 1)
+    src_2017 = cv2.imread(ss2, 1)
     label_img(src_2015, src_2017, ss3, ss4)

@@ -30,9 +30,9 @@ def gen_random_image():
     img[:, :, 2] = dark_color2
 
     # Object
-    light_color0 = random.randint(dark_color0+1, 255)
-    light_color1 = random.randint(dark_color1+1, 255)
-    light_color2 = random.randint(dark_color2+1, 255)
+    light_color0 = random.randint(dark_color0 + 1, 255)
+    light_color1 = random.randint(dark_color1 + 1, 255)
+    light_color2 = random.randint(dark_color2 + 1, 255)
     center_0 = random.randint(0, 224)
     center_1 = random.randint(0, 224)
     r1 = random.randint(10, 56)
@@ -71,79 +71,80 @@ def batch_generator(batch_size):
 
 
 def train_unet():
-    out_model_path = 'zf_unet_224_temp_vv4_0.791.h5'
+    out_model_path = 'zf_unet_224_temp_vv5_false.h5'
     batch_size = 12
     model = ZF_UNET_224()
     if os.path.isfile(out_model_path):
         model.load_weights(out_model_path)
     print('model stored!')
-    pic_dir='E:/Tianchi/satellite_img/2015_224_red/'
-    paths=os.listdir(pic_dir)
+    pic_dir = 'E:/Tianchi/NEW_DATA2/224_rgb/2015_224_red/'
+    paths = os.listdir(pic_dir)
     for path1 in paths:
         # img_path='E:/Tianchi/unet_test_pic/2015/0_1_224_.jpg'
-        # img=image.load_img(pic_dir+path1,target_size=(224,224))
+        img = image.load_img(pic_dir + path1, target_size=(224, 224))
         # img = image.load_img(pic_dir + path1)
-        # x=image.img_to_array(img)
-        # x90 = np.rot90(x,1)
-        # x180=np.rot90(x,2)
-        x=cv2.imread(pic_dir+path1)
-        x=cv2.resize(x,(224,224),interpolation=cv2.INTER_CUBIC)
-        m90 = cv2.getRotationMatrix2D((112,112),90,1)
-        m180 = cv2.getRotationMatrix2D((112, 112), 180, 1)
-        m270 = cv2.getRotationMatrix2D((112,112),270,1)
-        x90=cv2.warpAffine(x,m90,(224,224))
-        x180 = cv2.warpAffine(x, m180, (224, 224))
-        x270 = cv2.warpAffine(x, m270, (224, 224))
+        x = image.img_to_array(img)
 
-        x=np.expand_dims(x,axis=0)
-        x= np.array(x, dtype=np.float32)
-        x=x/255
-        x=x-0.5
-        preds=model.predict(x)
+        x = np.expand_dims(x, axis=0)
+        x = np.array(x, dtype=np.float32)
+        x = x / 255
+        x = x - 0.5
+        preds = model.predict(x)
+        preds = preds * 255
+        preds[preds > 100] = 255
+        preds[preds <= 100] = 0
+        preds = preds.astype(np.uint8)
+        preds = np.squeeze(preds)
 
+        # M90=cv2.getRotationMatrix2D(((224-1)/2,(224-1)/2),90,1)
+        # x90 = cv2.warpAffine(x,M90,(224,224))
+        # M180=cv2.getRotationMatrix2D(((224-1)/2,(224-1)/2),180,1)
+        # x180 = cv2.warpAffine(x,M180,(224,224))
+        # M270=cv2.getRotationMatrix2D(((224-1)/2,(224-1)/2),270,1)
+        # x270 = cv2.warpAffine(x,M270,(224,224))
+        # xup_down = x[::-1,:,:]
+        # xleft_right = x[:,::-1,:]
 
-        x90=np.expand_dims(x90,axis=0)
-        x90= np.array(x90, dtype=np.float32)
-        x90=x90/255
-        x90=x90-0.5
-        preds90=model.predict(x90)
-        preds90 = np.squeeze(preds90)
-        preds90 = cv2.warpAffine(preds90, m270, (224, 224))
+        # x_all=[x,x90,x180,x270,xup_down,xleft_right]
+        # preds_all=[]
+        # preds_all=np.zeros([224,224],dtype=np.float32)
+        # for i in range(len(x_all)):
+        #     x=x_all[i]
+        #     x=np.expand_dims(x,axis=0)
+        #     x= np.array(x, dtype=np.float32)
+        #     x=x/255
+        #     x=x-0.5
+        #     preds=model.predict(x)
+        #     # preds=preds*255
+        #     preds[preds>0.5]=1
+        #     preds[preds<=0.5]=0
+        #     preds_all.append(preds)
+        # preds_x = np.squeeze(preds_all[0])
+        # preds_x90 = cv2.warpAffine(np.squeeze(preds_all[1],axis=0),M270,(224,224))
+        # preds_x180 = cv2.warpAffine(np.squeeze(preds_all[2],axis=0),M180,(224,224))
+        # preds_x270 = cv2.warpAffine(np.squeeze(preds_all[3],axis=0), M90, (224, 224))
+        # preds_xup_down = np.squeeze(preds_all[4][::-1,:,:])
+        # preds_xleft_right = np.squeeze(preds_all[5][:,::-1,:])
+        # preds= (preds_x+preds_x90+preds_x180+preds_x270+preds_xup_down+preds_xleft_right)
+        # preds[preds>3]=255
+        # preds[preds<=3]=0
+        # preds=preds.astype(np.uint8)
+        # preds=np.expand_dims(preds,axis=2)
+        cv2.imwrite('E:/Tianchi/NEW_DATA2/224_rgb/unet_2015_224_red_new/' + path1, preds)
 
-        x180=np.expand_dims(x180,axis=0)
-        x180= np.array(x180, dtype=np.float32)
-        x180=x180/255
-        x180=x180-0.5
-        preds180=model.predict(x180)
-        preds180 = np.squeeze(preds180)
-        preds180 = cv2.warpAffine(preds180, m180, (224, 224))
-
-        x270=np.expand_dims(x270,axis=0)
-        x270= np.array(x270, dtype=np.float32)
-        x270=x270/255
-        x270=x270-0.5
-        preds270=model.predict(x270)
-        preds270 = np.squeeze(preds270)
-        preds270 = cv2.warpAffine(preds270, m90, (224, 224))
-
-        preds = (preds+preds90+preds180+preds270)/4
-
-        preds=preds*255
-        preds[preds>150]=255
-        preds[preds<=150]=0
-        preds=preds.astype(np.uint8)
-        cv2.imwrite('E:/Tianchi/satellite_img/v6_false/2015_224_red_result/'+path1,preds)
 
 if __name__ == '__main__':
     if K.backend() == 'tensorflow':
         try:
             from tensorflow import __version__ as __tensorflow_version__
+
             print('Tensorflow version: {}'.format(__tensorflow_version__))
         except:
             print('Tensorflow is unavailable...')
     else:
         try:
             from theano.version import version as __theano_version__
+
             print('Theano version: {}'.format(__theano_version__))
         except:
             print('Theano is unavailable...')

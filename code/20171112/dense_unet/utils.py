@@ -2,7 +2,6 @@ import tensorflow as tf
 import math
 from tensorflow.contrib.layers.python.layers import batch_norm as batch_norm
 
-
 '''
 def multi_dilate(x):
     conv1=tf.nn.relu(conv2d(x,3,64,3,1))
@@ -33,11 +32,12 @@ def conv2d(x, input_filters, output_filters, kernel, strides, mode='REFLECT', na
         shape = [kernel, kernel, input_filters, output_filters]
         # weight = tf.get_variable('weight', initializer=tf.random_uniform(shape, minval=-math.sqrt(6) / (
         # input_filters + output_filters), maxval=math.sqrt(6) / (input_filters + output_filters)))
-        weight = tf.get_variable('weight',shape=shape,initializer=tf.contrib.layers.xavier_initializer())
+        weight = tf.get_variable('weight', shape=shape, initializer=tf.contrib.layers.xavier_initializer())
         bias = tf.constant(0.0, shape=[output_filters])
         bias = tf.get_variable('bias', initializer=bias)
         x_conv = tf.nn.conv2d(x, weight, strides=[1, strides, strides, 1], padding='SAME', name='conv')
-        return tf.nn.bias_add(x_conv,bias)
+        return tf.nn.bias_add(x_conv, bias)
+
 
 # def batch_norm_layer(x,train_phase,scope_bn):
 #     bn_train = batch_norm(x,decay=0.99,center=True,scale=True,updates_collections=None,is_training=train_phase,reuse=None,trainable=True,scope=scope_bn+'train')
@@ -49,7 +49,7 @@ def batch_norm_layer(x, train_phase):
     return bn_train
 
 
-def bn_relu_conv(image, is_training, input_filters, output_filters, kernel, strides,name='bn_relu_conv1'):
+def bn_relu_conv(image, is_training, input_filters, output_filters, kernel, strides, name='bn_relu_conv1'):
     with tf.variable_scope(name) as scope:
         image_bn = batch_norm_layer(image, train_phase=is_training)
         image_relu = tf.nn.relu(image_bn)
@@ -62,8 +62,8 @@ def add_layer(name, l, is_training, input_filters1, input_filters2=64, output_fi
     shape = l.get_shape().as_list()
     in_channel = shape[3]
     with tf.variable_scope(name) as scope:
-        c = bn_relu_conv(l, is_training, input_filters1, output_filters1, kernel1, strides,name='bn_relu_conv1')
-        c = bn_relu_conv(c, is_training, input_filters2, output_filters2, kernel2, strides,name='bn_relu_conv2')
+        c = bn_relu_conv(l, is_training, input_filters1, output_filters1, kernel1, strides, name='bn_relu_conv1')
+        c = bn_relu_conv(c, is_training, input_filters2, output_filters2, kernel2, strides, name='bn_relu_conv2')
         l = tf.concat([c, l], 3)
     return l
 
@@ -73,7 +73,7 @@ def add_transition_average(name, l, is_training, input_filters, output_filters):
     in_channel = shape[3]
     with tf.variable_scope(name) as scope:
         l = bn_relu_conv(l, is_training, input_filters, output_filters, 1, 1)
-        l_pool = tf.nn.avg_pool(l,ksize=[1,2,2,1], strides=[1,2,2,1],padding='SAME')
+        l_pool = tf.nn.avg_pool(l, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME')
     return l, l_pool
 
 
